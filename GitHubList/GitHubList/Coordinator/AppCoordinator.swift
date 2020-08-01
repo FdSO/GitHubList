@@ -36,8 +36,10 @@ final class AppCoordinator: Coordinator {
         navigationController.pushViewController(viewController, animated: true)
     }
     
-    func detail() {
-        let viewController = PullsTableViewController(style: .grouped)
+    func detail(model: RepositoryModel) {
+        let viewController = PullRequestsTableViewController(model: model)
+        
+        viewController.navigationItem.title = model.fullName
         
         navigationController.pushViewController(viewController, animated: true)
     }

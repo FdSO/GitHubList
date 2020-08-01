@@ -12,7 +12,7 @@ extension UIViewController {
     
     func presentAlertController(title: String?, message: String?, preferredStyle: UIAlertController.Style, completion: (() -> Void)? = nil) {
         if presentedViewController == nil {
-            let alertController: UIAlertController = .init(title: title, message: message, preferredStyle: .alert)
+            let alertController: UIAlertController = .init(title: title, message: message, preferredStyle: preferredStyle)
             
             let okAction: UIAlertAction = .init(title: "OK", style: .default) { (_) in
                 completion?()

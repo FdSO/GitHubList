@@ -49,20 +49,7 @@ final class RepositoriesTableViewController: UITableViewController {
         case 0:
             updateControl.beginRefreshing()
             
-            viewModel.getRepositories { (error) in
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.updateControl.endRefreshing()
-                    
-                    self.tableView.reloadData()
-                    
-                    if let e = error {
-                        self.presentAlertController(title: e.localizedDescription, message: nil, preferredStyle: .alert) {
-                            self.tableView.backgroundView = self.descLabel
-                        }
-                    }
-                }
-            }
+            repositoryRequest()
             
         case 1:
             return
@@ -132,10 +119,13 @@ final class RepositoriesTableViewController: UITableViewController {
             cell.imageView?.image = .init()
             
             cell.imageView?.af.cancelImageRequest()
-            cell.imageView?.af.setImage(withURL: model.avatarURL, filter: AspectScaledToFitSizeFilter(size: .init(width: 50, height: 50)), imageTransition: .flipFromLeft(0.5), runImageTransitionIfCached: false, completion: { (_) in
-                cell.setNeedsLayout()
-                cell.layoutIfNeeded()
-            })
+            
+            if let url = model.avatarURL {
+                cell.imageView?.af.setImage(withURL: url, filter: AspectScaledToFitSizeFilter(size: .init(width: 50, height: 50)), imageTransition: .flipFromLeft(0.5), runImageTransitionIfCached: false, completion: { (_) in
+                    cell.setNeedsLayout()
+                    cell.layoutIfNeeded()
+                })
+            }
            
         case 1:
             break
@@ -145,6 +135,17 @@ final class RepositoriesTableViewController: UITableViewController {
         }
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        switch segmentedControl.selectedSegmentIndex {
+        case 0 where indexPath.row < viewModel.model.count:
+            coordinator?.detail(model: viewModel.model[indexPath.row])
+            
+        default:
+            return
+        }
     }
 }
 
@@ -160,5 +161,23 @@ extension RepositoriesTableViewController {
         
         // utilizado caso a celula seja customizada
 //        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "DATA_CELL")
+    }
+    
+    private func repositoryRequest() {
+        
+        viewModel.getRepositories { (error) in
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.updateControl.endRefreshing()
+                
+                self.tableView.reloadData()
+                
+                if let e = error {
+                    self.presentAlertController(title: e.localizedDescription, message: nil, preferredStyle: .alert) {
+                        self.tableView.backgroundView = self.descLabel
+                    }
+                }
+            }
+        }
     }
 }

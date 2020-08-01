@@ -11,8 +11,8 @@ import UIKit
 struct PullRequestModel: Decodable {
     
     struct UserModel: Decodable {
-        let name: String
-        let avatarURL: URL
+        let name: String?
+        let avatarURL: URL?
 
         private enum CodingKeys: String, CodingKey {
             case name = "login"
@@ -21,18 +21,18 @@ struct PullRequestModel: Decodable {
     }
     
     struct LabelModel: Decodable {
-        let name: String
-        let color: String
+        let name: String?
+        let color: String?
     }
 
-    private let user: UserModel
+    private let user: UserModel?
     
-    var userName: String {
-        return user.name
+    var userName: String? {
+        return user?.name
     }
     
-    var avatarURL: URL {
-        return user.avatarURL
+    var avatarURL: URL? {
+        return user?.avatarURL
     }
     
     private let labels: [LabelModel]?
@@ -41,9 +41,9 @@ struct PullRequestModel: Decodable {
         return labels?.first
     }
     
-    let id: Int
-    let title: String
-    let updateAt: String
+    let id: Int?
+    let title: String?
+    let updateAt: String?
     
     private enum CodingKeys: String, CodingKey {
         case id = "number"
@@ -56,8 +56,8 @@ struct PullRequestModel: Decodable {
 
 struct RepositoryModel: Decodable {
     struct OwnerModel: Decodable {
-        let userName: String
-        let avatarURL: URL
+        let userName: String?
+        let avatarURL: URL?
 
         private enum CodingKeys: String, CodingKey {
             case userName = "login"
@@ -66,29 +66,29 @@ struct RepositoryModel: Decodable {
     }
 
     struct LicenseModel: Decodable {
-        let name: String
+        let name: String?
     }
 
-    private let owner: OwnerModel
+    private let owner: OwnerModel?
 
-    var userName: String {
-        return owner.userName
+    var userName: String? {
+        return owner?.userName
     }
 
-    var avatarURL: URL {
-        return owner.avatarURL
+    var avatarURL: URL? {
+        return owner?.avatarURL
     }
 
     private let license: LicenseModel?
 
-    var licenseName: String {
-        return license?.name ?? .init()
+    var licenseName: String? {
+        return license?.name
     }
 
     let id: Int64?
     let fullName: String?
     let desc: String?
-    let url: URL
+    let url: URL?
     let watchers: Int?
     let language: String?
     let updateAt: String?
@@ -111,6 +111,8 @@ struct RepositoryModel: Decodable {
 struct GitHubModel: Decodable {
     let totalCount: Int?
     let items: [RepositoryModel]?
+    
+    static let dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
     
     private enum CodingKeys: String, CodingKey {
         case totalCount = "total_count"
