@@ -10,6 +10,8 @@ import UIKit
 
 import AlamofireImage
 
+import PureLayout
+
 final class PullRequestsTableViewController: UITableViewController {
 
     private lazy var updateControl: UIRefreshControl = {
@@ -21,20 +23,39 @@ final class PullRequestsTableViewController: UITableViewController {
         return rc
     }()
     
-    private lazy var descLabel: UILabel = {
+    private lazy var countLabel: UILabel = {
         let l = UILabel()
         
+        l.backgroundColor = #colorLiteral(red: 0.8374180198, green: 0.8374378085, blue: 0.8374271393, alpha: 1)
         l.textAlignment = .center
-        l.text = "Empty Data"
-
+        l.textColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+        l.layer.cornerRadius = 5
+        l.layer.masksToBounds = true
+        l.text = .init(format: "Open %d PR", viewModel.model.count)
+        
         return l
     }()
     
+    private lazy var tableHeaderView: PullRequestDetailView = {
+        let detailView = PullRequestDetailView()
+        
+        detailView.descriptionLabel.text = viewModel.repository.desc
+        detailView.updateAtLabel.text = viewModel.repository.updateAt?.asDate(dateFormat: GitHubModel.dateFormat, dateStyle: .full, timeStyle: .short) ?? "-"
+        detailView.licenseLabel.text = viewModel.repository.licenseName
+        detailView.watcherLabel.text = "⭐️ " + (viewModel.repository.watchers?.asAbbrevation() ?? "-")
+        
+        return detailView
+    }()
+    
+    private lazy var tableFooterView: UIView = {
+        let v = UIView()
+        
+        v.backgroundColor = .clear
+        
+        return v
+    }()
+    
     @objc private func refreshWasTapped() {
-        
-        tableView.backgroundView = nil
-        
-        updateControl.beginRefreshing()
         
         pullsRequest()
     }
@@ -52,10 +73,14 @@ final class PullRequestsTableViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func loadView() {
+        super.loadView()
         
         initComponents()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         updateControl.sendActions(for: .valueChanged)
     }
@@ -67,6 +92,10 @@ final class PullRequestsTableViewController: UITableViewController {
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
+        if viewModel.model.isEmpty && !updateControl.isRefreshing {
+            return 1
+        }
+        
         return viewModel.model.count
     }
 
@@ -75,6 +104,18 @@ final class PullRequestsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if viewModel.model.isEmpty {
+            let cell = UITableViewCell()
+            
+            cell.accessoryType = .none
+            cell.selectionStyle = .none
+            
+            cell.textLabel?.text = viewModel.statusMessage
+            cell.textLabel?.textAlignment = .center
+            
+            return cell
+        }
         
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
         
@@ -108,6 +149,11 @@ final class PullRequestsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        
+        guard section < viewModel.model.count else {
+            return nil
+        }
+        
         guard let id = viewModel.model[section].id else {
             return "-"
         }
@@ -116,7 +162,16 @@ final class PullRequestsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        return viewModel.model[section].updateAt?.asDate(dateFormat: GitHubModel.dateFormat, dateStyle: .full, timeStyle: .short) ?? "-"
+        
+        guard section < viewModel.model.count else {
+            return nil
+        }
+        
+        guard let date = viewModel.model[section].updateAt?.asDate(dateFormat: GitHubModel.dateFormat, dateStyle: .full, timeStyle: .short) else {
+            return "-"
+        }
+        
+        return date
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -136,9 +191,25 @@ final class PullRequestsTableViewController: UITableViewController {
 extension PullRequestsTableViewController {
     private func initComponents() {
         refreshControl = updateControl
+        
+        tableView.tableHeaderView = tableHeaderView
+        
+        tableHeaderView.frame.size = tableHeaderView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+
+        tableFooterView.frame.size.height = 100
+        tableFooterView.addSubview(countLabel)
+
+        countLabel.autoCenterInSuperview()
+        countLabel.autoPinEdge(toSuperviewEdge: .leading, withInset: 100)
+        countLabel.autoPinEdge(toSuperviewEdge: .trailing, withInset: 100)
+        countLabel.autoSetDimension(.height, toSize: 35)
+
+        tableView.tableFooterView = tableFooterView
     }
     
     private func pullsRequest() {
+        
+        updateControl.beginRefreshing()
         
         viewModel.getPullRequests { (error) in
             
@@ -147,11 +218,7 @@ extension PullRequestsTableViewController {
                 
                 self.tableView.reloadData()
                 
-                if let e = error {
-                    self.presentAlertController(title: e.localizedDescription, message: nil, preferredStyle: .alert) {
-                        self.tableView.backgroundView = self.descLabel
-                    }
-                }
+                self.countLabel.text = .init(format: "Open %d PR", self.viewModel.model.count)
             }
         }
     }

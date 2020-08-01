@@ -12,7 +12,9 @@ import Alamofire
 
 final class PullRequestsViewModel: NSObject {
     
-    private var repository: RepositoryModel
+    private(set) var repository: RepositoryModel
+    
+    private(set) var statusMessage: String = .init()
     
     var model: [PullRequestModel] {
         return repository.pullRequests ?? .init()
@@ -34,14 +36,19 @@ extension PullRequestsViewModel {
                 switch response.result {
                 case .success(let obj):
                     self.repository.pullRequests = obj
+                    self.statusMessage = .init()
                     completion(nil)
 
                 case .failure(let err):
+                    self.repository.pullRequests?.removeAll()
+                    self.statusMessage = err.localizedDescription
                     completion(err as NSError)
                 }
             }
         } else {
-            completion(.init(domain: .init(), code: 0, userInfo: [NSLocalizedDescriptionKey: "No internet connection"]))
+            repository.pullRequests?.removeAll()
+            statusMessage = "No internet connection"
+            completion(.init(domain: .init(), code: 0, userInfo: [NSLocalizedDescriptionKey: statusMessage]))
         }
     }
     

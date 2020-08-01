@@ -77,10 +77,16 @@ final class RepositoriesTableViewController: UITableViewController {
     
     weak var coordinator: AppCoordinator?
     
+    override func loadView() {
+        super.loadView()
+        
+        initComponents()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        initComponents()
+        segmentedControl.sendActions(for: .valueChanged)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -156,8 +162,6 @@ extension RepositoriesTableViewController {
         refreshControl = updateControl
         
         navigationItem.titleView = segmentedControl
-        
-        segmentedControl.sendActions(for: .valueChanged)
         
         // utilizado caso a celula seja customizada
 //        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "DATA_CELL")

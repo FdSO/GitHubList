@@ -10,6 +10,8 @@
 		A04ED44424D5ACC600962DD1 /* ExtensionUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04ED44324D5ACC600962DD1 /* ExtensionUIViewController.swift */; };
 		A04ED44724D5B62600962DD1 /* PullRequestsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04ED44624D5B62600962DD1 /* PullRequestsViewModel.swift */; };
 		A04ED44924D5C6BF00962DD1 /* ExtensionString.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04ED44824D5C6BF00962DD1 /* ExtensionString.swift */; };
+		A0B1170024D5DB77007B6AD0 /* PullRequestDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B116FF24D5DB77007B6AD0 /* PullRequestDetailView.swift */; };
+		A0B1170224D5E24D007B6AD0 /* ExtensionInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B1170124D5E24D007B6AD0 /* ExtensionInt.swift */; };
 		A0B729CB24D5909B000477D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B729CA24D5909B000477D4 /* AppDelegate.swift */; };
 		A0B729CD24D5909B000477D4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B729CC24D5909B000477D4 /* SceneDelegate.swift */; };
 		A0B729CF24D5909B000477D4 /* RepositoriesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B729CE24D5909B000477D4 /* RepositoriesTableViewController.swift */; };
@@ -41,6 +43,8 @@
 		A04ED44324D5ACC600962DD1 /* ExtensionUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionUIViewController.swift; sourceTree = "<group>"; };
 		A04ED44624D5B62600962DD1 /* PullRequestsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRequestsViewModel.swift; sourceTree = "<group>"; };
 		A04ED44824D5C6BF00962DD1 /* ExtensionString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionString.swift; sourceTree = "<group>"; };
+		A0B116FF24D5DB77007B6AD0 /* PullRequestDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PullRequestDetailView.swift; sourceTree = "<group>"; };
+		A0B1170124D5E24D007B6AD0 /* ExtensionInt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionInt.swift; sourceTree = "<group>"; };
 		A0B729C724D5909B000477D4 /* GitHubList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitHubList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0B729CA24D5909B000477D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A0B729CC24D5909B000477D4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -85,6 +89,7 @@
 			children = (
 				A04ED44324D5ACC600962DD1 /* ExtensionUIViewController.swift */,
 				A04ED44824D5C6BF00962DD1 /* ExtensionString.swift */,
+				A0B1170124D5E24D007B6AD0 /* ExtensionInt.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -156,6 +161,7 @@
 			children = (
 				A0B729FB24D597AA000477D4 /* PullRequestsTableViewController.swift */,
 				A04ED44624D5B62600962DD1 /* PullRequestsViewModel.swift */,
+				A0B116FF24D5DB77007B6AD0 /* PullRequestDetailView.swift */,
 			);
 			path = PullRequestsList;
 			sourceTree = "<group>";
@@ -286,10 +292,12 @@
 				A0B729FF24D598FC000477D4 /* Coordinator.swift in Sources */,
 				A0B729D524D5909B000477D4 /* GitHubList.xcdatamodeld in Sources */,
 				A0B72A0524D5A580000477D4 /* GitHubModel.swift in Sources */,
+				A0B1170224D5E24D007B6AD0 /* ExtensionInt.swift in Sources */,
 				A04ED44424D5ACC600962DD1 /* ExtensionUIViewController.swift in Sources */,
 				A0B729CD24D5909B000477D4 /* SceneDelegate.swift in Sources */,
 				A04ED44724D5B62600962DD1 /* PullRequestsViewModel.swift in Sources */,
 				A0B729FC24D597AA000477D4 /* PullRequestsTableViewController.swift in Sources */,
+				A0B1170024D5DB77007B6AD0 /* PullRequestDetailView.swift in Sources */,
 				A0B72A0124D59936000477D4 /* AppCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
