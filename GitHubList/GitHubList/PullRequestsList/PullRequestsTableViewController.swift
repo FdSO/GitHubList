@@ -14,6 +14,14 @@ import PureLayout
 
 final class PullRequestsTableViewController: UITableViewController {
 
+    private lazy var editButton: UIBarButtonItem = {
+        let eb = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(saveWasTapped))
+        
+        eb.title = viewModel.existInCoreData() ? "Remove" : "Save"
+        
+        return eb
+    }()
+    
     private lazy var updateControl: UIRefreshControl = {
         let rc = UIRefreshControl()
         
@@ -54,6 +62,14 @@ final class PullRequestsTableViewController: UITableViewController {
         
         return v
     }()
+    
+    @objc private func saveWasTapped(_ sender: UIBarButtonItem) {
+        if viewModel.existInCoreData() {
+            sender.title = viewModel.deleteFromCoreData() ? "Save" : "Remove"
+        } else {
+            sender.title = viewModel.saveInCoreData() ? "Remove" : "Save"
+        }
+    }
     
     @objc private func refreshWasTapped() {
         
@@ -112,6 +128,7 @@ final class PullRequestsTableViewController: UITableViewController {
             cell.selectionStyle = .none
             
             cell.textLabel?.text = viewModel.statusMessage
+            cell.textLabel?.font = .systemFont(ofSize: UIFont.labelFontSize, weight: .ultraLight)
             cell.textLabel?.textAlignment = .center
             
             return cell
@@ -190,6 +207,9 @@ final class PullRequestsTableViewController: UITableViewController {
 
 extension PullRequestsTableViewController {
     private func initComponents() {
+        
+        navigationItem.setRightBarButton(editButton, animated: true)
+        
         refreshControl = updateControl
         
         tableView.tableHeaderView = tableHeaderView

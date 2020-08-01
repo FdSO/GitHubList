@@ -36,7 +36,7 @@ extension PullRequestsViewModel {
                 switch response.result {
                 case .success(let obj):
                     self.repository.pullRequests = obj
-                    self.statusMessage = .init()
+                    self.statusMessage = obj.isEmpty ? "Empyt Pulls" : .init()
                     completion(nil)
 
                 case .failure(let err):
@@ -54,5 +54,31 @@ extension PullRequestsViewModel {
     
     func cancelRequest() {
         dataRequest?.cancel()
+    }
+    
+    func existInCoreData() -> Bool {
+        guard let id = repository.id else {
+            return false
+        }
+        
+        return RepositoryCoreData.exist(id: id)
+    }
+    
+    func saveInCoreData() -> Bool {
+        
+        guard let id = repository.id, let fullName = repository.fullName, let watchers = repository.watchers else {
+                return false
+        }
+        
+        return RepositoryCoreData.create(id: id, fullName: fullName, watchers: watchers)
+    }
+    
+    func deleteFromCoreData() -> Bool {
+        
+        guard let id = repository.id else {
+                return false
+        }
+        
+        return RepositoryCoreData.delete(id: id)
     }
 }

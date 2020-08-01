@@ -8,6 +8,8 @@
 
 import UIKit
 
+import CoreData
+
 import AlamofireImage
 
 final class RepositoriesTableViewController: UITableViewController {
@@ -41,9 +43,13 @@ final class RepositoriesTableViewController: UITableViewController {
     
     @objc private func segmentedWasTapped() {
         
+        tableView.reloadData()
+        
         viewModel.cancelRequest()
         
         tableView.backgroundView = nil
+        
+        tableView.bounces = true
         
         switch segmentedControl.selectedSegmentIndex {
         case 0:
@@ -52,7 +58,7 @@ final class RepositoriesTableViewController: UITableViewController {
             repositoryRequest()
             
         case 1:
-            return
+            tableView.bounces = false
             
         default:
             return
@@ -73,6 +79,19 @@ final class RepositoriesTableViewController: UITableViewController {
         }
     }
     
+    private lazy var fetchController: NSFetchedResultsController<RepositoryCoreData> = {
+        
+        let request = NSFetchRequest<RepositoryCoreData>(entityName: "RepositoryCoreData")
+        
+        request.sortDescriptors = [.init(key: "createAt", ascending: false)]
+        
+        let controller = NSFetchedResultsController(fetchRequest: request, managedObjectContext: appDelegate?.persistentContainer.viewContext ?? .init(concurrencyType: .mainQueueConcurrencyType), sectionNameKeyPath: nil, cacheName: nil)
+        
+        controller.delegate = self
+        
+        return controller
+    }()
+    
     private let viewModel: RepositoriesViewModel = .init()
     
     weak var coordinator: AppCoordinator?
@@ -86,13 +105,11 @@ final class RepositoriesTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        segmentedControl.sendActions(for: .valueChanged)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        try? fetchController.performFetch()
         
-        segmentedControl.setEnabled(false, forSegmentAt: 1)
+        segmentedControl.setEnabled(!(fetchController.fetchedObjects?.isEmpty ?? true), forSegmentAt: 1)
+        
+        segmentedControl.sendActions(for: .valueChanged)
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -100,7 +117,19 @@ final class RepositoriesTableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.model.count
+        
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            return viewModel.model.count
+            
+        case 1:
+            return fetchController.fetchedObjects?.count ?? 0
+            
+        default:
+            break
+        }
+        
+        return 0
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -108,10 +137,11 @@ final class RepositoriesTableViewController: UITableViewController {
         // utilizado caso a celula seja customizada
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "DATA_CELL", for: indexPath)
         
-        let cell: UITableViewCell = .init(style: .subtitle, reuseIdentifier: nil)
-        
         switch segmentedControl.selectedSegmentIndex {
         case 0 where indexPath.row < viewModel.model.count:
+            
+            let cell: UITableViewCell = .init(style: .subtitle, reuseIdentifier: nil)
+            
             let model = viewModel.model[indexPath.row]
            
             cell.accessoryType = .disclosureIndicator
@@ -132,15 +162,26 @@ final class RepositoriesTableViewController: UITableViewController {
                     cell.layoutIfNeeded()
                 })
             }
+            
+            return cell
            
-        case 1:
-            break
+        case 1 where indexPath.row < fetchController.fetchedObjects?.count ?? 0:
+            
+            let cell: UITableViewCell = .init(style: .value1, reuseIdentifier: nil)
+            
+            let model = fetchController.object(at: indexPath)
+            
+            cell.selectionStyle = .none
+            cell.textLabel?.text = "⭐️ " + (model.watchers.intValue.asAbbrevation() ?? "-")
+            cell.detailTextLabel?.text = model.fullName
            
+            return cell
+            
         default:
             break
         }
         
-        return cell
+        return .init()
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -183,5 +224,12 @@ extension RepositoriesTableViewController {
                 }
             }
         }
+    }
+}
+
+extension RepositoriesTableViewController: NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        segmentedControl.setEnabled(!(controller.fetchedObjects?.isEmpty ?? true), forSegmentAt: 1)
     }
 }
