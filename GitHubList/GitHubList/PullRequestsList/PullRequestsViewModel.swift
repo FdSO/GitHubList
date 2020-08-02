@@ -28,6 +28,8 @@ final class PullRequestsViewModel: NSObject {
 }
 
 extension PullRequestsViewModel {
+    
+    // chamada para api rest do github para função de lista de PR de um repositório
     func getPullRequests(completion: @escaping (NSError?) -> Void) {
         
         if let url = repository.url, NetworkReachabilityManager.default?.isReachable ?? false {
@@ -52,6 +54,7 @@ extension PullRequestsViewModel {
         }
     }
     
+    // cancela a última requisição da api
     func cancelRequest() {
         dataRequest?.cancel()
     }

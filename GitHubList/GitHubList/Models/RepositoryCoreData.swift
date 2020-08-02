@@ -9,6 +9,8 @@
 
 import CoreData
 
+// crud para repositório CoreData
+
 @objc(RepositoryCoreData)
 final class RepositoryCoreData: NSManagedObject {
     

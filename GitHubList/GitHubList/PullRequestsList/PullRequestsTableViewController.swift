@@ -44,6 +44,7 @@ final class PullRequestsTableViewController: UITableViewController {
         return l
     }()
     
+    // view para detalhes do repositório
     private lazy var tableHeaderView: PullRequestDetailView = {
         let detailView = PullRequestDetailView()
         
@@ -64,6 +65,8 @@ final class PullRequestsTableViewController: UITableViewController {
     }()
     
     @objc private func saveWasTapped(_ sender: UIBarButtonItem) {
+        
+        // verifica se o repositório já existe no CoreData
         if viewModel.existInCoreData() {
             sender.title = viewModel.deleteFromCoreData() ? "Save" : "Remove"
         } else {
@@ -98,6 +101,7 @@ final class PullRequestsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // ação de pull down programaticamente
         updateControl.sendActions(for: .valueChanged)
     }
     
@@ -108,6 +112,8 @@ final class PullRequestsTableViewController: UITableViewController {
     }
 
     override func numberOfSections(in tableView: UITableView) -> Int {
+        
+        // utilizado para criar uma célula de aviso
         if viewModel.model.isEmpty && !updateControl.isRefreshing {
             return 1
         }
@@ -122,6 +128,8 @@ final class PullRequestsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if viewModel.model.isEmpty {
+            
+            // célula para status de aviso
             let cell = UITableViewCell()
             
             cell.accessoryType = .none
@@ -138,8 +146,12 @@ final class PullRequestsTableViewController: UITableViewController {
             return .init()
         }
         
+        // célula para exibir informação do PullRequest
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        
         let model = viewModel.model[indexPath.section]
         
+        // se o PullRequest precisa de mais informações
         cell.accessoryType = model.label == nil ? .checkmark : .detailButton
         cell.selectionStyle = .none
         
@@ -153,6 +165,7 @@ final class PullRequestsTableViewController: UITableViewController {
         
         cell.imageView?.af.cancelImageRequest()
         
+        // download da imagem do usuário do PullRequest
         if let url = model.avatarURL {
             cell.imageView?.af.setImage(withURL: url, filter: AspectScaledToFitSizeFilter(size: .init(width: 50, height: 50)), imageTransition: .flipFromLeft(0.5), runImageTransitionIfCached: false, completion: { (_) in
                 cell.setNeedsLayout()
@@ -182,6 +195,7 @@ final class PullRequestsTableViewController: UITableViewController {
             return nil
         }
         
+        // data do pullrequest
         guard let date = viewModel.model[section].updateAt?.asDate(dateFormat: GitHubModel.dateFormat, dateStyle: .full, timeStyle: .short) else {
             return "-"
         }
@@ -193,6 +207,7 @@ final class PullRequestsTableViewController: UITableViewController {
         return 120
     }
     
+    // informa o status do PullRequest caso tenha alguma pendência
     override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
         
         guard indexPath.section < viewModel.model.count else {

@@ -8,6 +8,7 @@
 
 import UIKit
 
+// utilizado para tela de lista de pulls
 struct PullRequestModel: Decodable {
     
     struct UserModel: Decodable {
@@ -54,6 +55,7 @@ struct PullRequestModel: Decodable {
     }
 }
 
+// utilizado para a tela de lista de repositórios
 struct RepositoryModel: Decodable {
     struct OwnerModel: Decodable {
         let userName: String?
@@ -93,6 +95,7 @@ struct RepositoryModel: Decodable {
     let language: String?
     let updateAt: String?
 
+    // utilizado para vincular a lista de pulls a um repositório
     var pullRequests: [PullRequestModel]?
 
     private enum CodingKeys: String, CodingKey {
@@ -112,6 +115,7 @@ struct GitHubModel: Decodable {
     let totalCount: Int?
     let items: [RepositoryModel]?
     
+    // formato de tempo github
     static let dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
     
     private enum CodingKeys: String, CodingKey {

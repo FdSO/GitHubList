@@ -32,6 +32,7 @@ final class RepositoriesTableViewController: UITableViewController {
         return rc
     }()
     
+    // utilizada para informar algum estado de erro no background da tableview, somente quando a lista é vazia
     private lazy var descLabel: UILabel = {
         let l = UILabel()
         
@@ -84,6 +85,7 @@ final class RepositoriesTableViewController: UITableViewController {
         }
     }
     
+    // controller para obter todos os dados do CoreData com alguma ordenação
     private lazy var fetchController: NSFetchedResultsController<RepositoryCoreData> = {
         
         let request = NSFetchRequest<RepositoryCoreData>(entityName: "RepositoryCoreData")
@@ -112,6 +114,7 @@ final class RepositoriesTableViewController: UITableViewController {
         
         try? fetchController.performFetch()
         
+        // verifica a existência de dados no CoreData, para habilitar ou não a aba 1
         segmentedControl.setEnabled(!(fetchController.fetchedObjects?.isEmpty ?? true), forSegmentAt: 1)
         
         segmentedControl.sendActions(for: .valueChanged)
@@ -141,7 +144,7 @@ final class RepositoriesTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // utilizado caso a celula seja customizada
+        // utilizado caso a célula seja customizada
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "DATA_CELL", for: indexPath)
         
         switch segmentedControl.selectedSegmentIndex {
@@ -184,6 +187,7 @@ final class RepositoriesTableViewController: UITableViewController {
             
             cell.imageView?.af.cancelImageRequest()
             
+            // download da imagem do repositório
             if let url = model.avatarURL {
                 cell.imageView?.af.setImage(withURL: url, filter: AspectScaledToFitSizeFilter(size: .init(width: 50, height: 50)), imageTransition: .flipFromLeft(0.5), runImageTransitionIfCached: false, completion: { (_) in
                     cell.setNeedsLayout()
@@ -193,6 +197,7 @@ final class RepositoriesTableViewController: UITableViewController {
             
             return cell
            
+        // célula para respósitorio salvo no CoreData
         case 1 where indexPath.row < fetchController.fetchedObjects?.count ?? 0:
             
             let cell: UITableViewCell = .init(style: .value1, reuseIdentifier: nil)
@@ -215,6 +220,8 @@ final class RepositoriesTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         switch segmentedControl.selectedSegmentIndex {
+            
+        // coordinator para lista de pulls de um repositório
         case 0 where indexPath.row < viewModel.model.count:
             coordinator?.detail(model: viewModel.model[indexPath.row])
             
@@ -275,6 +282,7 @@ extension RepositoriesTableViewController {
 
 extension RepositoriesTableViewController: NSFetchedResultsControllerDelegate {
     
+    // ativa ou desativa a aba 1 do SegmentedControl a cada mudança de dados no CoreData
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         segmentedControl.setEnabled(!(controller.fetchedObjects?.isEmpty ?? true), forSegmentAt: 1)
     }
