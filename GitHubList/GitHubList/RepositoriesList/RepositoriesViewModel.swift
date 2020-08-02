@@ -29,14 +29,20 @@ final class RepositoriesViewModel: NSObject {
     
     private var dataRequest: DataRequest?
     
-    private let perPage: Int = 15 // máximo 100
+    let perPage: Int // máximo 100
     
-    private var page: Int = 1 // pagina 0 e 1 são idênticas, git começa no 1
+    private(set) var page: Int // pagina 0 e 1 são idênticas, git começa no 1
     
     // verifica se ainda exista algo a se carregar
     var hasMoreData: Bool {
         let currentGithubTotalCount = github?.totalCount ?? 0
         return page < (currentGithubTotalCount / perPage)
+    }
+    
+    init(perPage: Int = 15, inicialPage: Int = 1) {
+        self.perPage = perPage
+        self.page = inicialPage
+        super.init()
     }
 }
 
