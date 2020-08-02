@@ -119,3 +119,7 @@ struct GitHubModel: Decodable {
         case items
     }
 }
+
+struct GitHubError: Decodable {
+    let message: String
+}

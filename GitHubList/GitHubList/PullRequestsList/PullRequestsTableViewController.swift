@@ -134,8 +134,6 @@ final class PullRequestsTableViewController: UITableViewController {
             return cell
         }
         
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        
         guard indexPath.section < viewModel.model.count else {
             return .init()
         }

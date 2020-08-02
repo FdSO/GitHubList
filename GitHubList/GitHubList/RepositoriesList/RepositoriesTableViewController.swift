@@ -43,16 +43,17 @@ final class RepositoriesTableViewController: UITableViewController {
     
     @objc private func segmentedWasTapped() {
         
-        tableView.reloadData()
-        
         viewModel.cancelRequest()
+        
+        tableView.reloadData()
         
         tableView.backgroundView = nil
         
         tableView.bounces = true
         
         switch segmentedControl.selectedSegmentIndex {
-        case 0:
+        case 0 where viewModel.model.isEmpty:
+            
             updateControl.beginRefreshing()
             
             repositoryRequest()
@@ -69,6 +70,10 @@ final class RepositoriesTableViewController: UITableViewController {
         
         switch segmentedControl.selectedSegmentIndex {
         case 0:
+            
+            viewModel.resetPagination()
+            
+            // ação de pull down programaticamente
             segmentedControl.sendActions(for: .valueChanged)
             
         case 1:
@@ -119,8 +124,10 @@ final class RepositoriesTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         switch segmentedControl.selectedSegmentIndex {
+            
+        // caso exista mais páginas na paginação, acrescenta um espaço para a célula de carregamento
         case 0:
-            return viewModel.model.count
+            return viewModel.model.count + (viewModel.hasMoreData ? 1 : 0)
             
         case 1:
             return fetchController.fetchedObjects?.count ?? 0
@@ -138,7 +145,28 @@ final class RepositoriesTableViewController: UITableViewController {
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "DATA_CELL", for: indexPath)
         
         switch segmentedControl.selectedSegmentIndex {
-        case 0 where indexPath.row < viewModel.model.count:
+            
+        // célula para repositório online
+        case 0 where indexPath.row <= viewModel.model.count:
+            
+            // célula para carregamento e aviso, caso seja a última da lista
+            if viewModel.isLoadingIndexPath(indexPath.row) {
+                
+                let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+                
+                cell.selectionStyle = .none
+                
+                let detailLabelFont = cell.detailTextLabel?.font
+                
+                cell.textLabel?.text = viewModel.statusMessage
+                cell.textLabel?.textColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
+                cell.textLabel?.numberOfLines = 0
+                cell.detailTextLabel?.text = "Loading.."
+                cell.detailTextLabel?.font = cell.textLabel?.font
+                cell.textLabel?.font = detailLabelFont
+                
+                return cell
+            }
             
             let cell: UITableViewCell = .init(style: .subtitle, reuseIdentifier: nil)
             
@@ -194,6 +222,23 @@ final class RepositoriesTableViewController: UITableViewController {
             return
         }
     }
+    
+    
+    // utilizado para o carregamento na rolagem, caso necessário
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        switch segmentedControl.selectedSegmentIndex {
+        case 0 where viewModel.isLoadingIndexPath(indexPath.row):
+            
+            // cancela a requisação anterior e prepara a próxima, isso mantém a suavidade da rolagem
+            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.repositoryRequest), object: nil)
+
+            perform(#selector(self.repositoryRequest), with: nil, afterDelay: 0.5)
+            
+        default:
+            return
+        }
+    }
 }
 
 extension RepositoriesTableViewController {
@@ -208,7 +253,7 @@ extension RepositoriesTableViewController {
 //        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "DATA_CELL")
     }
     
-    private func repositoryRequest() {
+    @objc private func repositoryRequest() {
         
         viewModel.getRepositories { (error) in
             
@@ -217,7 +262,8 @@ extension RepositoriesTableViewController {
                 
                 self.tableView.reloadData()
                 
-                if let e = error {
+                // exibe o erro em formato de AlertController quando a lista é vazia
+                if let e = error, self.viewModel.model.isEmpty {
                     self.presentAlertController(title: e.localizedDescription, message: nil, preferredStyle: .alert) {
                         self.tableView.backgroundView = self.descLabel
                     }
